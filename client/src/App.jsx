@@ -6,7 +6,13 @@ import "./App.css";
 function App() {
   const [count, setCount] = useState(0);
 
-  return <h2>This is Websocket demo app</h2>;
+  return (
+    <>
+      <h2>This is Websocket demo app</h2>
+      <input type="text" />
+      <button>Send!</button>
+    </>
+  );
 }
 
 export default App;
