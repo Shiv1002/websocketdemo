@@ -1,1 +1,1 @@
-# this is demo for how websocket work
+# Websocket demo
