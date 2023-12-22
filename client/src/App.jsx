@@ -9,7 +9,7 @@ function App() {
   );
 
   useEffect(() => {
-    const url = "ws://localhost:1200";
+    const url = "ws://127.0.0.1:1200";
     const ws = new WebSocket(url);
     dispatch({ type: "setSocket", payload: ws });
     ws.onopen = () => {
@@ -21,8 +21,8 @@ function App() {
       //getting data in json string
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
     };
-    ws.onerror = () => {
-      console.log("error occured!");
+    ws.onerror = (error) => {
+      alert("error occured re!", error);
       dispatch({ type: "setOpen", payload: false });
     };
   }, []);
@@ -35,25 +35,32 @@ function App() {
   }
 
   return (
-    <>
-      <h2>This is Websocket demo app</h2>
-      <div className="msg-container">
+    <div className="chat-outer-con">
+      <h2 className="" style={{color:"white"}}>This is Websocket demo app</h2>
+      <div className="msg-list-container">
         {msg.map((ele, index) => {
           // ele is string
-          return <li key={index}>{ele}</li>;
+
+          return <div key={index} className="msg-container">
+            <div className="msg-sender">server</div>
+            <li className="msg" >{ele}</li>
+          </div>;
         })}
       </div>
-
-      <input
-        type="text"
-        onChange={(e) => dispatch({ type: "setText", payload: e.target.value })}
-        value={text}
-        min={2}
-      />
-      <button onClick={() => sendMessage()} disabled={!isOpen}>
-        Send
-      </button>
-    </>
+      <div className="input-con">
+        <input
+          type="text"
+          onChange={(e) =>
+            dispatch({ type: "setText", payload: e.target.value })
+          }
+          value={text}
+          min={2}
+        />
+        <button onClick={() => sendMessage()} disabled={!isOpen}>
+          Send
+        </button>
+      </div>
+    </div>
   );
 }
 
