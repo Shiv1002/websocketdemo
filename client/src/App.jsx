@@ -1,34 +1,36 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
+import { initial_state, reducer } from "./Reducer";
 import "./App.css";
 
 function App() {
-  const [text, setText] = useState("");
-  const [socket, setSocket] = useState(null);
-  const [isOpen, setOpen] = useState(false);
-  const [msg, setMsg] = useState([]);
+  const [{ text, isOpen, msg, socket }, dispatch] = useReducer(
+    reducer,
+    initial_state
+  );
+
   useEffect(() => {
     const url = "ws://localhost:1200";
     const ws = new WebSocket(url);
-    setSocket(ws);
+    dispatch({ type: "setSocket", payload: ws });
     ws.onopen = () => {
       console.log("server is Listening!");
       // setting up state of input dom according to server
-      setOpen(true);
+      dispatch({ type: "setOpen", payload: true });
     };
     ws.onmessage = (e) => {
       //getting data in json string
-      setMsg(JSON.parse(e.data));
+      dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
     };
     ws.onerror = () => {
       console.log("error occured!");
-      setOpen(false);
+      dispatch({ type: "setOpen", payload: false });
     };
   }, []);
 
   function sendMessage() {
     if (text) {
       socket.send(text);
-      setText("");
+      dispatch({ type: "setText", payload: "" });
     }
   }
 
@@ -44,7 +46,7 @@ function App() {
 
       <input
         type="text"
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => dispatch({ type: "setText", payload: e.target.value })}
         value={text}
         min={2}
       />
