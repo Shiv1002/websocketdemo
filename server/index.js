@@ -4,12 +4,12 @@
 // create a websocket server
 const ws = require("ws");
 const fs = require("fs");
+const http = require("http");
 
 const filename = "chatlog.json";
 
-const wsServer = new ws.WebSocketServer({ port: 1200 }, () =>
-  console.log("websocket server running on port 1200 🔥")
-);
+const server = http.createServer();
+const wsServer = new ws.Server({ server });
 
 wsServer.on("connection", (ws, req) => {
   ws.onmessage = (e) => {
@@ -21,8 +21,8 @@ wsServer.on("connection", (ws, req) => {
       })
       .catch((err) => console.log(err));
   };
-  ws.onerror = () => {
-    console.log("error");
+  ws.onerror = (e) => {
+    console.log(e);
   };
 
   console.log("someone connected 🤫:", wsServer.clients.size);
@@ -68,3 +68,7 @@ const readLog = () => {
     });
   });
 };
+
+server.listen(1200, "127.0.0.1", () =>
+  console.log("websocket server running on port 1200 🔥")
+);
