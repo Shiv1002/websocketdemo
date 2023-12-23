@@ -4,6 +4,7 @@ import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
 
 function App() {
+  const server_url = import.meta.BACKEND_URL || "http://127.0.0.1:1200";
   const [{ text, isOpen, msg, socket, user }, dispatch] = useReducer(
     reducer,
     initial_state
@@ -21,7 +22,7 @@ function App() {
       if (user && send) {
         const checkUsername = async () => {
           try {
-            const res = await fetch("http://127.0.0.1:1200/checkUser", {
+            const res = await fetch(server_url + "/checkuser", {
               method: "post",
               headers: { "Content-type": "application/json" },
               body: JSON.stringify({ user: user.toLowerCase() }),
@@ -73,8 +74,9 @@ function App() {
       console.log("user not found!", user);
       return;
     }
-    const url = "ws://127.0.0.1:1200";
-    const ws = new WebSocket(url);
+    const url = new URL(server_url);
+    const ws_url = "ws:" + url.host;
+    const ws = new WebSocket(ws_url);
 
     dispatch({ type: "setSocket", payload: ws });
     ws.onopen = () => {
