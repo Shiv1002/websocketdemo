@@ -64,8 +64,12 @@ function App() {
 
   const scrollDown = () => {
     console.log("scrolling down");
-    document.querySelector(".msg-list-container").scrollTop =
-      document.querySelector(".msg-list-container").scrollHeight;
+    try {
+      document.querySelector(".msg-list-container").scrollTop =
+        document.querySelector(".msg-list-container").scrollHeight;
+    } catch (e) {
+      console.log("UI not loaded");
+    }
   };
   useEffect(() => scrollDown(), [msg]);
 
