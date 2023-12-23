@@ -2,13 +2,14 @@
 // const http = require("http");
 // const server = http.createServer();
 // create a websocket server
+
 const ws = require("ws");
 const fs = require("fs");
 const express = require("express");
 const app = express();
 const Chat = require("./chat.js");
 const { default: mongoose } = require("mongoose");
-const dbURL = "mongodb://127.0.0.1:27017/WBCHAT";
+const dbURL = process.env.url || "mongodb://127.0.0.1:27017/WBCHAT";
 
 const myserver = app.listen(1200, "127.0.0.1", () =>
   console.log("websocket server running on port 1200 🔥")
@@ -61,7 +62,9 @@ const sendMessages = () => {
   console.log("Broadcasting it");
   wsServer.clients.forEach((ws) => {
     getChatFromDB()
-      .then((chats) => ws.send(JSON.stringify(chats)))
+      .then((chats) => {
+        ws.send(JSON.stringify(chats));
+      })
       .catch((err) => console.log(err));
   });
 };

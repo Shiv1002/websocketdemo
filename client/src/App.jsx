@@ -83,7 +83,6 @@ function App() {
       dispatch({ type: "setOpen", payload: true });
     };
     ws.onmessage = async (e) => {
-      s;
       //getting data in json string
       console.log(JSON.parse(e.data));
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
