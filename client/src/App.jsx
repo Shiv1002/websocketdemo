@@ -55,7 +55,6 @@ function App() {
     document.querySelector(".msg-list-container").scrollTop =
       document.querySelector(".msg-list-container").scrollHeight;
   };
-
   useEffect(() => scrollDown(), [msg]);
 
   useEffect(() => {
@@ -78,12 +77,13 @@ function App() {
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
     };
     ws.onerror = (error) => {
-      alert("error occured re!", error);
+      // alert("error occured re!", error);
       dispatch({ type: "setOpen", payload: false });
+      // const reload = confirm(`Something went wrong!\nReload!!`);
+      // if (reload) location.reload();
     };
     ws.onclose = () => {
-      const reload = confirm(`Something went wrong!\nReload!!`);
-      if (reload) location.reload();
+      console.log("closing connection");
     };
   }, [localStorage.getItem("user")]);
 
@@ -127,13 +127,18 @@ function App() {
             )}
           </div>
           <div className="input-con">
-            <input
+            <textarea
+              autoFocus
               type="text"
-              onChange={(e) =>
-                dispatch({ type: "setText", payload: e.target.value })
-              }
+              rows={1}
+              onChange={(e) => {
+                const t = e.target;
+                dispatch({ type: "setText", payload: e.target.value });
+                t.style.height = t.style.minHeight = "auto";
+                t.style.height = `${t.scrollHeight + 1}px`;
+              }}
               value={text}
-              min={2}
+              draggable={false}
             />
             <button onClick={() => sendMessage()} disabled={!isOpen}>
               Send
