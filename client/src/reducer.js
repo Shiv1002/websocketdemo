@@ -3,6 +3,7 @@ export const initial_state = {
   isOpen: false,
   msg: [],
   socket: null,
+  user: "",
 };
 
 export function reducer(state, { type, payload }) {
@@ -15,5 +16,7 @@ export function reducer(state, { type, payload }) {
       return { ...state, msg: [...payload] };
     case "setSocket":
       return { ...state, socket: payload };
+    case "setUser":
+      return { ...state, user: payload };
   }
 }

@@ -4,22 +4,42 @@
 // create a websocket server
 const ws = require("ws");
 const fs = require("fs");
-const http = require("http");
+const express = require("express");
+const app = express();
+const Chat = require("./chat.js");
+const { default: mongoose } = require("mongoose");
+const dbURL = "mongodb://127.0.0.1:27017/WBCHAT";
 
-const filename = "chatlog.json";
+const myserver = app.listen(1200, "127.0.0.1", () =>
+  console.log("websocket server running on port 1200 🔥")
+);
 
-const server = http.createServer();
-const wsServer = new ws.Server({ server });
+const wsServer = new ws.Server({ noServer: true });
+app.use(express.json());
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+app.get("/", (req, res) => {
+  res.send("This is express app!");
+});
+
+app.post("/checkUser", async (req, res) => {
+  const user = req.body.user;
+  const data = await Chat.findOne({
+    sender: user.toString().toLowerCase(),
+  }).catch((e) => console.log(e.message));
+  if (data) res.status(404).send("Username exist");
+  else res.status(200).send("No username!");
+});
 
 wsServer.on("connection", (ws, req) => {
   ws.onmessage = (e) => {
     console.log(`received ${e.data}`);
-    writeLog(e.data)
-      .then((res) => {
-        sendMessages();
-        console.log(res);
-      })
-      .catch((err) => console.log(err));
   };
   ws.onerror = (e) => {
     console.log(e);
@@ -33,42 +53,44 @@ wsServer.on("connection", (ws, req) => {
 const sendMessages = () => {
   console.log("Broadcasting it");
   wsServer.clients.forEach((ws) => {
-    readLog()
-      .then((log) => ws.send(JSON.stringify(log)))
+    getChatFromDB()
+      .then((chats) => ws.send(JSON.stringify(chats)))
       .catch((err) => console.log(err));
   });
 };
 
-const writeLog = (data) => {
-  console.log("Writing to log ✍");
+function getChatFromDB() {
+  console.log("Get all chats");
   return new Promise(async (resolve, reject) => {
-    let logs = await readLog();
-    fs.writeFile(filename, JSON.stringify([...logs, data]), (err, content) => {
-      if (err) {
-        console.log("could write due to 👎", err.message);
-        reject(err);
-      } else {
-        resolve("write successfully!");
-      }
-    });
+    await Chat.find({})
+      .then((res) => resolve(res))
+      .catch((e) => reject(e));
   });
+}
+
+const appendChat = async (data) => {
+  console.log("Pushing in DB");
+  const newMsg = new Chat({
+    msg: data.msg,
+    sender: data.sender.toString().toLowerCase(),
+  });
+  await newMsg.save().catch((e) => console.log(e.message));
 };
 
-const readLog = () => {
-  console.log("Reading logs 📖");
-  return new Promise((resolve, reject) => {
-    fs.readFile(filename, "utf8", (err, data) => {
-      if (err) {
-        console.log("could not log due to 👎", err.message);
-        reject(err);
-      } else {
-        console.log("Read successful");
-        resolve(JSON.parse(data));
-      }
-    });
-  });
+const main = async () => {
+  await mongoose
+    .connect(dbURL)
+    .then(() => console.log("Connected to DB", dbURL))
+    .catch((e) => console.log(e.message));
 };
 
-server.listen(1200, "127.0.0.1", () =>
-  console.log("websocket server running on port 1200 🔥")
-);
+main();
+
+myserver.on("upgrade", (req, socket, head) => {
+  //upgrade from http protocol to websocket
+  wsServer.handleUpgrade(req, socket, head, (ws) => {
+    //handling upgrade of protocol
+    wsServer.emit("connection", ws, req);
+    //emmiting connection event
+  });
+});
