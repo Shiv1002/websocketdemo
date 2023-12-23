@@ -20,4 +20,4 @@ function reducer(state, { type, payload }) {
       return { ...state, user: payload };
   }
 }
-export default { initial_state, reducer };
+export { initial_state, reducer };
