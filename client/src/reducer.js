@@ -1,4 +1,4 @@
-export const initial_state = {
+const initial_state = {
   text: "",
   isOpen: false,
   msg: [],
@@ -6,7 +6,7 @@ export const initial_state = {
   user: "",
 };
 
-export function reducer(state, { type, payload }) {
+function reducer(state, { type, payload }) {
   switch (type) {
     case "setText":
       return { ...state, text: payload };
@@ -20,3 +20,4 @@ export function reducer(state, { type, payload }) {
       return { ...state, user: payload };
   }
 }
+export default { initial_state, reducer };
