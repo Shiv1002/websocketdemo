@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useState } from "react";
-import { initial_state, reducer } from "./Reducer.js";
+import { initial_state, reducer } from "./reducers/Reducer.js";
 import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
 
