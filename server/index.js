@@ -39,7 +39,14 @@ app.post("/checkUser", async (req, res) => {
 
 wsServer.on("connection", (ws, req) => {
   ws.onmessage = (e) => {
-    console.log(`received ${e.data}`);
+    const data = JSON.parse(e.data);
+    console.log(`received msg:${data.msg} sender:${data.sender}`);
+    appendChat(data)
+      .then((res) => {
+        sendMessages();
+        console.log(res);
+      })
+      .catch((e) => console.log(e));
   };
   ws.onerror = (e) => {
     console.log(e);
@@ -69,12 +76,17 @@ function getChatFromDB() {
 }
 
 const appendChat = async (data) => {
-  console.log("Pushing in DB");
-  const newMsg = new Chat({
-    msg: data.msg,
-    sender: data.sender.toString().toLowerCase(),
+  return new Promise(async (resolve, reject) => {
+    console.log("Pushing in DB");
+    const newMsg = new Chat({
+      msg: data.msg,
+      sender: data.sender.toString().toLowerCase(),
+    });
+    await newMsg
+      .save()
+      .then((d) => resolve("Data saved successfully!"))
+      .catch((e) => reject(e.message));
   });
-  await newMsg.save().catch((e) => console.log(e.message));
 };
 
 const main = async () => {

@@ -18,20 +18,26 @@ function App() {
       console.log("No user found!", user);
       if (user && send) {
         const checkUsername = async () => {
-          const res = await fetch("http://127.0.0.1:1200/checkUser", {
-            method: "post",
-            headers: { "Content-type": "application/json" },
-            body: JSON.stringify({ user: user }),
-          });
-          if (res.status === 200) {
-            console.log(user, "No username!");
-            localStorage.setItem("user", user);
-            dispatch({
-              type: "setUser",
-              payload: localStorage.getItem("user"),
+          try {
+            const res = await fetch("http://127.0.0.1:1200/checkUser", {
+              method: "post",
+              headers: { "Content-type": "application/json" },
+              body: JSON.stringify({ user: user.toLowerCase() }),
+            }).catch((e) => {
+              throw new Error(e);
             });
-          } else {
-            console.log(user, "Username exist");
+            if (res.status === 200) {
+              console.log(user, "No username!");
+              localStorage.setItem("user", user.toLowerCase());
+              dispatch({
+                type: "setUser",
+                payload: localStorage.getItem("user"),
+              });
+            } else {
+              console.log(user, "Username exist");
+            }
+          } catch (e) {
+            console.log(e.message);
           }
           setSend(false);
         };
@@ -74,7 +80,7 @@ function App() {
 
   function sendMessage() {
     if (text) {
-      socket.send(text);
+      socket.send(JSON.stringify({ msg: text, sender: user }));
       dispatch({ type: "setText", payload: "" });
     }
   }
