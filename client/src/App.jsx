@@ -50,6 +50,14 @@ function App() {
     console.log("change in user");
   }, [user]);
 
+  const scrollDown = () => {
+    console.log("scrolling down");
+    document.querySelector(".msg-list-container").scrollTop =
+      document.querySelector(".msg-list-container").scrollHeight;
+  };
+
+  useEffect(() => scrollDown(), [msg]);
+
   useEffect(() => {
     if (!localStorage.getItem("user")) {
       console.log("user not found!", user);
@@ -64,7 +72,7 @@ function App() {
       // setting up state of input dom according to server
       dispatch({ type: "setOpen", payload: true });
     };
-    ws.onmessage = (e) => {
+    ws.onmessage = async (e) => {
       //getting data in json string
       console.log(JSON.parse(e.data));
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
