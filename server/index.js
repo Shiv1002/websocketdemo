@@ -9,7 +9,7 @@ const express = require("express");
 const app = express();
 const Chat = require("./chat.js");
 const { default: mongoose } = require("mongoose");
-const dbURL = process.env.url || "mongodb://127.0.0.1:27017/WBCHAT";
+const dbURL = process.env.DBURL || "mongodb://127.0.0.1:27017/WBCHAT";
 
 const myserver = app.listen(1200, "127.0.0.1", () =>
   console.log("websocket server running on port 1200 🔥")
