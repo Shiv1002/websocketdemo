@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import { initial_state, reducer } from "./Reducer";
 import "./App.css";
+import { toast, Toaster } from "react-hot-toast";
 
 function App() {
   const [{ text, isOpen, msg, socket, user }, dispatch] = useReducer(
@@ -9,6 +10,7 @@ function App() {
   );
 
   const [send, setSend] = useState(false);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (localStorage.getItem("user")) {
@@ -33,11 +35,20 @@ function App() {
                 type: "setUser",
                 payload: localStorage.getItem("user"),
               });
+              toast.success("Created Username!");
             } else {
+              toast.error("Username already exist!", {
+                position: "top-center",
+                duration: 3000,
+              });
               console.log(user, "Username exist");
             }
           } catch (e) {
             console.log(e.message);
+            toast.error("Something went wrong!", {
+              position: "top-center",
+              duration: 3000,
+            });
           }
           setSend(false);
         };
@@ -72,13 +83,19 @@ function App() {
       dispatch({ type: "setOpen", payload: true });
     };
     ws.onmessage = async (e) => {
+      s;
       //getting data in json string
       console.log(JSON.parse(e.data));
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
     };
-    ws.onerror = (error) => {
-      // alert("error occured re!", error);
+    ws.onerror = () => {
+      toast.error("Something went wrong!", {
+        position: "top-center",
+        duration: 3000,
+      });
+
       dispatch({ type: "setOpen", payload: false });
+      console.log();
       // const reload = confirm(`Something went wrong!\nReload!!`);
       // if (reload) location.reload();
     };
@@ -96,68 +113,76 @@ function App() {
 
   return (
     <>
-      {localStorage.getItem("user") ? (
-        <div className="chat-outer-con">
-          <h2 className="" style={{ color: "white" }}>
-            This is Websocket demo app
-          </h2>
-          <div className="msg-list-container">
-            {msg.length > 0 ? (
-              msg.map((ele, index) => {
-                // ele is string
-                if (ele.sender !== user)
-                  return (
-                    <div key={index} className="msg-container">
-                      <div className="msg-sender">{ele.sender}</div>
-                      <li className="msg">{ele.msg}</li>
-                    </div>
-                  );
-                else
-                  return (
-                    <div
-                      key={index}
-                      className="msg-container msg-container-user"
-                    >
-                      <li className="msg">{ele.msg}</li>
-                    </div>
-                  );
-              })
-            ) : (
-              <span style={{ color: "white", margin: "auto" }}>No chats!!</span>
-            )}
+      <Toaster position="top-right" />
+      <div id="App">
+        {localStorage.getItem("user") ? (
+          <div className="chat-outer-con">
+            <h2 className="" style={{ color: "white" }}>
+              This is Websocket demo app
+            </h2>
+            <div className="msg-list-container">
+              {msg.length > 0 ? (
+                msg.map((ele, index) => {
+                  // ele is string
+                  if (ele.sender !== user)
+                    return (
+                      <div key={index} className="msg-container">
+                        <div className="msg-sender">{ele.sender}</div>
+                        <li className="msg">{ele.msg}</li>
+                      </div>
+                    );
+                  else
+                    return (
+                      <div
+                        key={index}
+                        className="msg-container msg-container-user"
+                      >
+                        <li className="msg">{ele.msg}</li>
+                      </div>
+                    );
+                })
+              ) : (
+                <span style={{ color: "white", margin: "auto" }}>
+                  No chats!!
+                </span>
+              )}
+            </div>
+            <div className="input-con">
+              <textarea
+                autoFocus
+                type="text"
+                rows={1}
+                onChange={(e) => {
+                  const t = e.target;
+                  dispatch({ type: "setText", payload: e.target.value });
+                  t.style.height = t.style.minHeight = "auto";
+                  t.style.height = `${t.scrollHeight + 1}px`;
+                }}
+                value={text}
+                draggable={false}
+              />
+              <button onClick={() => sendMessage()} disabled={!isOpen}>
+                Send
+              </button>
+            </div>
           </div>
-          <div className="input-con">
-            <textarea
-              autoFocus
+        ) : (
+          <div className="UserField">
+            <h2 style={{ color: "white" }}>Enter username!</h2>
+            <input
               type="text"
-              rows={1}
-              onChange={(e) => {
-                const t = e.target;
-                dispatch({ type: "setText", payload: e.target.value });
-                t.style.height = t.style.minHeight = "auto";
-                t.style.height = `${t.scrollHeight + 1}px`;
-              }}
-              value={text}
-              draggable={false}
+              value={user}
+              onChange={(e) =>
+                dispatch({
+                  type: "setUser",
+                  payload: e.target.value.toString(),
+                })
+              }
             />
-            <button onClick={() => sendMessage()} disabled={!isOpen}>
-              Send
-            </button>
+            <button onClick={() => setSend(true)}>Check!</button>
           </div>
-        </div>
-      ) : (
-        <div className="UserField">
-          <h2 style={{ color: "white" }}>Enter username!</h2>
-          <input
-            type="text"
-            value={user}
-            onChange={(e) =>
-              dispatch({ type: "setUser", payload: e.target.value.toString() })
-            }
-          />
-          <button onClick={() => setSend(true)}>Check!</button>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }

@@ -5,7 +5,10 @@ body{
   background-repeat: no-repeat;
   background-size: cover;
 }
-#root {
+#root{
+  width: 100%;
+}
+#App {
   margin: 0 auto;
   padding: 0 2rem;
   text-align: center;
@@ -80,24 +83,24 @@ box-sizing: border-box;
   font-weight: 600;
 }
 @media screen and (width<576px){
-  #root {
+  #App {
     width: 100%;
   }
 }
 @media screen and (width>=576px){
-  #root {
+  #App {
     width: 90%;
   }
 }
 
 @media screen and (width>=786px){
-  #root {
+  #App {
     width: 80%;
   }
 }
 
 @media screen and (width>=992px){
-  #root {
+  #App {
     width: 60%;
   }
 }
@@ -105,14 +108,14 @@ box-sizing: border-box;
 
 
 @media screen and (width>=1200px){
-  #root {
+  #App {
     width: 50%;
   }
 }
 
 
 @media screen and (width>=1400px){
-  #root {
+  #App {
     width: 40%;
   }
 }
