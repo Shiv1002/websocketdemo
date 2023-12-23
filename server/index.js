@@ -67,7 +67,6 @@ const sendMessages = () => {
 };
 
 function getChatFromDB() {
-  console.log("Get all chats");
   return new Promise(async (resolve, reject) => {
     await Chat.find({})
       .then((res) => resolve(res))
