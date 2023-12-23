@@ -47,22 +47,25 @@ font-size: large;
   text-align:left ;
   display: flex;
   flex-direction: column;
+  padding: 7px;
 }
 
 .msg{
   list-style: none;
+  overflow-wrap: break-word;
 }
 .msg-container{
   background: white;
-  width: max-content;
-  margin: 7px;
+  margin: 7px 0;
   padding: 0.4rem .8rem;
   border-radius: 1rem;  
   margin-right: auto;
+max-width: 100%;
+box-sizing: border-box;
 }
 .msg-container-user{
   margin-left: auto;
-  margin-right: 7px;
+  margin-right: 0;
   background: rgb(179, 255, 112);
 }
 .msg-sender{
