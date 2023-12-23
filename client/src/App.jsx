@@ -74,7 +74,8 @@ function App() {
       dispatch({ type: "setOpen", payload: false });
     };
     ws.onclose = () => {
-      alert("Closing connection");
+      const reload = confirm(`Something went wrong!\nReload!!`);
+      if (reload) location.reload();
     };
   }, [localStorage.getItem("user")]);
 
@@ -96,13 +97,22 @@ function App() {
             {msg.length > 0 ? (
               msg.map((ele, index) => {
                 // ele is string
-
-                return (
-                  <div key={index} className="msg-container">
-                    <div className="msg-sender">{ele.sender}</div>
-                    <li className="msg">{ele.msg}</li>
-                  </div>
-                );
+                if (ele.sender !== user)
+                  return (
+                    <div key={index} className="msg-container">
+                      <div className="msg-sender">{ele.sender}</div>
+                      <li className="msg">{ele.msg}</li>
+                    </div>
+                  );
+                else
+                  return (
+                    <div
+                      key={index}
+                      className="msg-container msg-container-user"
+                    >
+                      <li className="msg">{ele.msg}</li>
+                    </div>
+                  );
               })
             ) : (
               <span style={{ color: "white", margin: "auto" }}>No chats!!</span>
