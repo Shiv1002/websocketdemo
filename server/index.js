@@ -9,10 +9,11 @@ const express = require("express");
 const app = express();
 const Chat = require("./chat.js");
 const { default: mongoose } = require("mongoose");
+const PORT = process.env.PORT || 1200;
 const dbURL = process.env.DBURL || "mongodb://127.0.0.1:27017/WBCHAT";
 
-const myserver = app.listen(1200, "127.0.0.1", () =>
-  console.log("websocket server running on port 1200 🔥")
+const myserver = app.listen(PORT, () =>
+  console.log(`websocket server running on port ${PORT} 🔥`)
 );
 
 const wsServer = new ws.Server({ noServer: true });
