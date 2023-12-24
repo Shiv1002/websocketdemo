@@ -4,14 +4,20 @@ import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
 
 function App() {
-  const server_url = import.meta.BACKEND_URL || "http://127.0.0.1:1200";
+  let server_url;
+  if (import.meta.env.DEV) {
+    server_url = "http://127.0.0.1:1200";
+    console.log("DevTime 🎉");
+  } else {
+    server_url = import.meta.env.VITE_BACKEND_URL;
+    console.log("ProductionTime 😎");
+  }
   const [{ text, isOpen, msg, socket, user }, dispatch] = useReducer(
     reducer,
     initial_state
   );
 
   const [send, setSend] = useState(false);
-  useEffect(() => {}, []);
 
   useEffect(() => {
     if (localStorage.getItem("user")) {
