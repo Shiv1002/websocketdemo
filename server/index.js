@@ -19,10 +19,7 @@ const myserver = app.listen(PORT, () =>
 const wsServer = new ws.Server({ noServer: true });
 app.use(express.json());
 app.use(function (req, res, next) {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "localhost,https://wsdemo-shiv1002.onrender.com"
-  );
+  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
