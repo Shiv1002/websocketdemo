@@ -87,9 +87,13 @@ function App() {
       console.log("user not found!", user);
       return;
     }
-    let url;
+    let url, ws_url, ws;
+
     try {
       url = new URL(server_url);
+      if (import.meta.env.PROD) ws_url = "wss:" + url.host;
+      else ws_url = "ws:" + url.host;
+      ws = new WebSocket(ws_url);
     } catch (e) {
       toast.error("Something went wrong!", {
         position: "top-center",
@@ -97,8 +101,6 @@ function App() {
       });
       return;
     }
-    const ws_url = "ws:" + url.host;
-    const ws = new WebSocket(ws_url);
 
     dispatch({ type: "setSocket", payload: ws });
     ws.onopen = () => {
