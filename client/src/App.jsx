@@ -4,18 +4,21 @@ import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
 
 function App() {
-  let server_url;
-  if (import.meta.env.DEV) {
-    server_url = "http://127.0.0.1:1200";
-    console.log("DevTime 🎉");
-  } else {
-    server_url = import.meta.env.VITE_BACKEND_URL;
-    console.log("ProductionTime 😎");
-  }
+  const server_url =
+    import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:1200";
+
   const [{ text, isOpen, msg, socket, user }, dispatch] = useReducer(
     reducer,
     initial_state
   );
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log("DevTime 🎉");
+    } else {
+      console.log("ProductionTime 😎");
+    }
+  }, []);
 
   const [send, setSend] = useState(false);
 
@@ -84,7 +87,16 @@ function App() {
       console.log("user not found!", user);
       return;
     }
-    const url = new URL(server_url);
+    let url;
+    try {
+      url = new URL(server_url);
+    } catch (e) {
+      toast.error("Something went wrong!", {
+        position: "top-center",
+        duration: 3000,
+      });
+      return;
+    }
     const ws_url = "ws:" + url.host;
     const ws = new WebSocket(ws_url);
 
