@@ -24,45 +24,56 @@ function App() {
 
   useEffect(() => {
     if (localStorage.getItem("user")) {
-      console.log("user found!");
+      console.log("user in storage found!");
       dispatch({ type: "setUser", payload: localStorage.getItem("user") });
     } else {
-      console.log("No user found!", user);
+      console.log("no user in storage found!", user);
+
       if (user && send) {
-        const checkUsername = async () => {
-          try {
-            const res = await fetch(server_url + "/checkuser", {
+        function checkUsername() {
+          return new Promise(async (resolve, reject) => {
+            await fetch(server_url + "/checkuser", {
               method: "post",
               headers: { "Content-type": "application/json" },
               body: JSON.stringify({ user: user.toLowerCase() }),
-            }).catch((e) => {
-              throw new Error(e);
-            });
-            if (res.status === 200) {
-              console.log(user, "No username!");
-              localStorage.setItem("user", user.toLowerCase());
-              dispatch({
-                type: "setUser",
-                payload: localStorage.getItem("user"),
+            })
+              .then((res) => {
+                if (res.status === 200) {
+                  console.log(user, "No username!");
+                  localStorage.setItem("user", user.toLowerCase());
+                  dispatch({
+                    type: "setUser",
+                    payload: localStorage.getItem("user"),
+                  });
+                  resolve("Created Username!");
+                } else {
+                  // toast.error("Username already exist!", {
+                  //   position: "top-center",
+                  //   duration: 3000,
+                  // });
+                  console.log(user, "Username exist");
+                  throw new Error("Username exist");
+                }
+              })
+              .catch((e) => {
+                reject(e);
               });
-              toast.success("Created Username!");
-            } else {
-              toast.error("Username already exist!", {
-                position: "top-center",
-                duration: 3000,
-              });
-              console.log(user, "Username exist");
-            }
-          } catch (e) {
-            console.log(e.message);
-            toast.error("Something went wrong!", {
-              position: "top-center",
-              duration: 3000,
-            });
+          });
+        }
+
+        toast.promise(
+          checkUsername(),
+          {
+            loading: "fetching user!",
+            success: (res) => <>{res}</>,
+            error: (error) => <>{error.message}</>,
+          },
+          {
+            duration: 3000,
           }
-          setSend(false);
-        };
-        checkUsername();
+        );
+
+        setSend(false);
       }
     }
   }, [send]);
@@ -80,11 +91,13 @@ function App() {
       console.log("UI not loaded");
     }
   };
-  useEffect(() => scrollDown(), [msg]);
+  useEffect(() => {
+    scrollDown();
+  }, [msg]);
 
   useEffect(() => {
     if (!localStorage.getItem("user")) {
-      console.log("user not found!", user);
+      console.log("user not found! so no server call", user);
       return;
     }
     let url, ws_url, ws;
@@ -204,7 +217,17 @@ function App() {
                 })
               }
             />
-            <button onClick={() => setSend(true)}>Check!</button>
+            <button
+              onClick={() => {
+                if (!user) {
+                  toast.error("Empty name not allowed!");
+                  return;
+                }
+                setSend(true);
+              }}
+            >
+              Check!
+            </button>
           </div>
         )}
       </div>
