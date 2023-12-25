@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from "react";
 import { initial_state, reducer } from "./reducers/Reducer.js";
 import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
-
+import { LoaderIcon } from "react-hot-toast";
 function App() {
   const server_url =
     import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:1200";
@@ -100,14 +100,17 @@ function App() {
       console.log("user not found! so no server call", user);
       return;
     }
-    let url, ws_url, ws;
-
+    let url, ws_url, ws, toast_for_fetching_data;
     try {
       url = new URL(server_url);
       if (import.meta.env.PROD) ws_url = "wss:" + url.host;
       else ws_url = "ws:" + url.host;
       ws = new WebSocket(ws_url);
+      toast_for_fetching_data = toast("fetching data...", {
+        icon: <LoaderIcon />,
+      });
     } catch (e) {
+      toast.dismiss(toast_for_fetching_data);
       toast.error("Something went wrong!", {
         position: "top-center",
         duration: 3000,
@@ -123,6 +126,8 @@ function App() {
     };
     ws.onmessage = async (e) => {
       //getting data in json string
+      toast.dismiss(toast_for_fetching_data);
+      toast.success("Data fetched successfully!");
       console.log(JSON.parse(e.data));
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
     };
@@ -139,6 +144,10 @@ function App() {
     };
     ws.onclose = () => {
       console.log("closing connection");
+      toast.error("Connection with server is closed\nPlease refresh!", {
+        position: "top-center",
+        duration: 10000,
+      });
     };
   }, [localStorage.getItem("user")]);
 
