@@ -62,17 +62,17 @@ function App() {
           });
         }
 
-        toast.promise(
-          checkUsername(),
-          {
-            loading: "fetching user!",
-            success: (res) => <>{res}</>,
-            error: (error) => <>{error.message}</>,
+        toast.promise(checkUsername(), {
+          loading: "fetching user!",
+          success: (res) => {
+            toast.dismiss();
+            return <>{res}</>;
           },
-          {
-            duration: 3000,
-          }
-        );
+          error: (error) => {
+            toast.dismiss();
+            return <>{error.message}</>;
+          },
+        });
 
         setSend(false);
       }
@@ -130,14 +130,11 @@ function App() {
       //getting data in json string
       toast.dismiss(toast_for_fetching_data);
       // console.log(JSON.parse(e.data));
-      console.log(msgRef.current);
       if (msgRef.current.length === 0) {
         toast.success("Data fetched successfully!");
       }
       msgRef.current = JSON.parse(e.data);
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
-
-      // toastSuccess();
     };
     ws.onerror = () => {
       toast.dismiss(toast_for_fetching_data);
@@ -163,7 +160,6 @@ function App() {
   function sendMessage() {
     if (text) {
       socket.send(JSON.stringify({ msg: text, sender: user }));
-      console.log("aftter send", msg);
       dispatch({ type: "setText", payload: "" });
     }
   }
