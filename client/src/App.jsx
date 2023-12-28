@@ -133,6 +133,7 @@ function App() {
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
     };
     ws.onerror = () => {
+      toast.dismiss(toast_for_fetching_data);
       toast.error("Something went wrong!", {
         position: "top-center",
         duration: 3000,
