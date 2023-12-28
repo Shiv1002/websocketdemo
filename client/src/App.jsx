@@ -69,7 +69,7 @@ function App() {
             error: (error) => <>{error.message}</>,
           },
           {
-            duration: 3000,
+            duration: Infinity,
           }
         );
 
