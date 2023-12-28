@@ -69,7 +69,7 @@ function App() {
             error: (error) => <>{error.message}</>,
           },
           {
-            duration: Infinity,
+            duration: 3000,
           }
         );
 
@@ -108,6 +108,7 @@ function App() {
       ws = new WebSocket(ws_url);
       toast_for_fetching_data = toast("fetching data...", {
         icon: <LoaderIcon />,
+        duration: Infinity,
       });
     } catch (e) {
       toast.dismiss(toast_for_fetching_data);
