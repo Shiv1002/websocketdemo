@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { initial_state, reducer } from "./reducers/Reducer.js";
 import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
@@ -11,6 +11,7 @@ function App() {
     reducer,
     initial_state
   );
+  const msgRef = useRef(msg);
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -128,9 +129,15 @@ function App() {
     ws.onmessage = async (e) => {
       //getting data in json string
       toast.dismiss(toast_for_fetching_data);
-      toast.success("Data fetched successfully!");
-      console.log(JSON.parse(e.data));
+      // console.log(JSON.parse(e.data));
+      console.log(msgRef.current);
+      if (msgRef.current.length === 0) {
+        toast.success("Data fetched successfully!");
+      }
+      msgRef.current = JSON.parse(e.data);
       dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
+
+      // toastSuccess();
     };
     ws.onerror = () => {
       toast.dismiss(toast_for_fetching_data);
@@ -156,6 +163,7 @@ function App() {
   function sendMessage() {
     if (text) {
       socket.send(JSON.stringify({ msg: text, sender: user }));
+      console.log("aftter send", msg);
       dispatch({ type: "setText", payload: "" });
     }
   }
