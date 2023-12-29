@@ -1,18 +1,17 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import { initial_state, reducer } from "./reducers/Reducer.js";
+import WebSocketService from "./services/WebSocketService.js";
 import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
-import { LoaderIcon } from "react-hot-toast";
 function App() {
-  const server_url =
-    import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:1200";
+  const server_url = "http://127.0.0.1:1200";
 
   const [{ text, isOpen, msg, socket, user }, dispatch] = useReducer(
     reducer,
     initial_state
   );
-  const msgRef = useRef(msg);
 
+  const { sendMessage } = WebSocketService(msg, socket, dispatch);
   useEffect(() => {
     if (import.meta.env.DEV) {
       console.log("DevTime 🎉");
@@ -48,10 +47,6 @@ function App() {
                   });
                   resolve("Created Username!");
                 } else {
-                  // toast.error("Username already exist!", {
-                  //   position: "top-center",
-                  //   duration: 3000,
-                  // });
                   console.log(user, "Username exist");
                   throw new Error("Username exist");
                 }
@@ -92,74 +87,15 @@ function App() {
       console.log("UI not loaded");
     }
   };
+
   useEffect(() => {
+    console.log(msg);
     scrollDown();
   }, [msg]);
 
-  useEffect(() => {
-    if (!localStorage.getItem("user")) {
-      console.log("user not found! so no server call", user);
-      return;
-    }
-    let url, ws_url, ws, toast_for_fetching_data;
-    try {
-      url = new URL(server_url);
-      if (import.meta.env.PROD) ws_url = "wss:" + url.host;
-      else ws_url = "ws:" + url.host;
-      ws = new WebSocket(ws_url);
-      toast_for_fetching_data = toast("fetching data...", {
-        icon: <LoaderIcon />,
-        duration: Infinity,
-      });
-    } catch (e) {
-      toast.dismiss(toast_for_fetching_data);
-      toast.error("Something went wrong!", {
-        position: "top-center",
-        duration: 3000,
-      });
-      return;
-    }
-
-    dispatch({ type: "setSocket", payload: ws });
-    ws.onopen = () => {
-      console.log("server is Listening!");
-      // setting up state of input dom according to server
-      dispatch({ type: "setOpen", payload: true });
-    };
-    ws.onmessage = async (e) => {
-      //getting data in json string
-      toast.dismiss(toast_for_fetching_data);
-      // console.log(JSON.parse(e.data));
-      if (msgRef.current.length === 0) {
-        toast.success("Data fetched successfully!");
-      }
-      msgRef.current = JSON.parse(e.data);
-      dispatch({ type: "setMsg", payload: JSON.parse(e.data) });
-    };
-    ws.onerror = () => {
-      toast.dismiss(toast_for_fetching_data);
-      toast.error("Something went wrong!", {
-        position: "top-center",
-        duration: 3000,
-      });
-
-      dispatch({ type: "setOpen", payload: false });
-      console.log();
-      // const reload = confirm(`Something went wrong!\nReload!!`);
-      // if (reload) location.reload();
-    };
-    ws.onclose = () => {
-      console.log("closing connection");
-      toast.error("Connection with server is closed\nPlease refresh!", {
-        position: "top-center",
-        duration: 10000,
-      });
-    };
-  }, [localStorage.getItem("user")]);
-
-  function sendMessage() {
+  function sendData() {
     if (text) {
-      socket.send(JSON.stringify({ msg: text, sender: user }));
+      sendMessage({ msg: text, sender: user });
       dispatch({ type: "setText", payload: "" });
     }
   }
@@ -214,7 +150,7 @@ function App() {
                 value={text}
                 draggable={false}
               />
-              <button onClick={() => sendMessage()} disabled={!isOpen}>
+              <button onClick={() => sendData()} disabled={!isOpen}>
                 Send
               </button>
             </div>
