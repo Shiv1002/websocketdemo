@@ -4,7 +4,7 @@ import WebSocketService from "./services/WebSocketService.js";
 import "./App.css";
 import { toast, Toaster } from "react-hot-toast";
 function App() {
-  const server_url = "http://127.0.0.1:1200";
+  const server_url = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:1200";
 
   const [{ text, isOpen, msg, socket, user }, dispatch] = useReducer(
     reducer,
